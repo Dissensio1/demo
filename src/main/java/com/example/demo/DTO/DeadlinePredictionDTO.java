@@ -1,6 +1,8 @@
-package com.example.demo.model;
+package com.example.demo.DTO;
 
 import java.time.LocalDateTime;
+
+import com.example.demo.enums.RiskLevel;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

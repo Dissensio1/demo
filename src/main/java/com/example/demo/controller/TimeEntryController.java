@@ -14,25 +14,25 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.enums.TaskType;
 import com.example.demo.model.Student;
-import com.example.demo.model.TaskType;
 import com.example.demo.model.TimeEntry;
 
 import jakarta.validation.Valid;
 
-@RequestMapping("/api")
+@RequestMapping("/api/timeEntries")
 @RestController
 public class TimeEntryController{
     private List<TimeEntry> timeEntries = new ArrayList<>(Arrays.asList(
         new TimeEntry(1l, new Student(1l, "Emil Zotov", "2231121", null), TaskType.LAB, "blah", LocalDateTime.now(), LocalDateTime.now(), false)
     ));
 
-    @GetMapping("/timeEntries")
+    @GetMapping
     public List<TimeEntry> getTimeEntries() {
         return timeEntries;
     }
 
-    @GetMapping("/timeEntries/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<TimeEntry> getTimeEntry(@PathVariable Long id) {
         for (TimeEntry timeEntry : timeEntries) {
             if (timeEntry.getId().equals(id)) {
@@ -42,7 +42,7 @@ public class TimeEntryController{
         return ResponseEntity.notFound().build();
     }
 
-    @PostMapping("/timeEntries")
+    @PostMapping
     public ResponseEntity<TimeEntry> addTimeEntry(@RequestBody @Valid TimeEntry timeEntry) {
         timeEntry.setId((long)timeEntries.size() + 1);
         timeEntries.add(timeEntry);
