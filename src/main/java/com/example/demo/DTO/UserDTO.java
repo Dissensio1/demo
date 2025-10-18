@@ -1,3 +1,10 @@
-package com.example.demo.dto;
+package com.example.demo.DTO;
 
-public record UserDTO(Long id, String username, String password, String role, Set<String> permissions) implements Serializable{}
+import java.io.Serializable;
+import java.util.Set;
+
+public record UserDTO(Long Id, 
+String username, 
+String password, 
+String role, 
+Set<String> permissions) implements Serializable{}

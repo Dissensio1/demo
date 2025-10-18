@@ -58,8 +58,8 @@ public class TimeEntryService {
     @Caching(evict = {@CacheEvict(value = "timeEntries", allEntries = true), @CacheEvict(value = "timeEntry", key = "#id")})
     public TimeEntry update(Long id, TimeEntry timeEntry) {
         return timeEntryRepository.findById(id).map(existingTimeEntry -> {
-            existingTimeEntry.setStart(timeEntry.getStart());
-            existingTimeEntry.setEnd(timeEntry.getEnd());
+            existingTimeEntry.setTimestart(timeEntry.getTimestart());
+            existingTimeEntry.setTimeend(timeEntry.getTimeend());
             return timeEntryRepository.save(existingTimeEntry);
         }).orElse(null);
     }

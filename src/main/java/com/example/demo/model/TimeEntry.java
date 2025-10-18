@@ -36,11 +36,10 @@ public class TimeEntry {
     private String description;
     @Size(min=2, max=100, message = "starttime")
     @Column(nullable = false, length = 100)
-    private LocalDateTime start;
+    private LocalDateTime timestart;
     @Size(min=2, max=100, message = "endtime")
     @Column(nullable = false, length = 100)
-    private LocalDateTime end;
-    @Size(min=2, max=100, message = "isbillable")
-    @Column(nullable = false, length = 100)
+    private LocalDateTime timeend;
+    @Column()
     private boolean isBillable; // учётное время
 }
