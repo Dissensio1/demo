@@ -2,6 +2,8 @@ package com.example.demo.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -47,6 +49,14 @@ public class StudentController {
         return ResponseEntity.ok().body(studentService.getById(id));
     }
 
+    @GetMapping("/filter")
+    public ResponseEntity<Object> getByFilter(
+        @RequestParam(required = false)String name,
+        @RequestParam(required = false)String title,
+        @PageableDefault(page = 0, size = 10, sort = "title")Pageable pageable){
+            return ResponseEntity.ok(studentService.getByFilter(name, title, pageable));
+        }
+    
 
     @PutMapping("/{id}")
     public ResponseEntity<Student> edit(@PathVariable Long id, @RequestBody Student student){
