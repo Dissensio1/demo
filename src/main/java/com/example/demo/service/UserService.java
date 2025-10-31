@@ -20,4 +20,10 @@ public class UserService {
             () -> new ResourceNotFoundException("User with id " + id + " not found"));
         return UserMapper.userToUserDto(user);
     }
+
+    public User getUser(String name){
+        User user = userRepository.findByUsername(name).orElseThrow(
+            () -> new ResourceNotFoundException("User with username " + name + " not found"));
+        return user;
+    }
 }
