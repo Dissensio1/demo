@@ -22,12 +22,14 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Service
 public class JwtTokenProvider {
     @Value("${jwt.secret}")
     private String key;
-    TokenRepository tokenRepository;
+    private final TokenRepository tokenRepository;
 
     private boolean isDisabled(String value){
         Token token = tokenRepository.findByValue(value).orElse(null);
@@ -47,7 +49,7 @@ public class JwtTokenProvider {
         return Jwts.parserBuilder()
         .setSigningKey(decodeSecretKey(key))
         .build()
-        .parseClaimsJwt(value)
+        .parseClaimsJws(value)
         .getBody();
     }
 
@@ -55,7 +57,7 @@ public class JwtTokenProvider {
         return Keys.hmacShaKeyFor(Base64.getDecoder().decode(key));
     }
 
-    private <Token> Token extractClaim(String token, Function<Claims, Token> claimResolver){
+    private <T> T extractClaim(String token, Function<Claims, T> claimResolver){
         return claimResolver.apply(extractAllClaims(token));
     }
 
@@ -71,7 +73,7 @@ public class JwtTokenProvider {
         if(token == null) return false;
         try{
         Jwts.parserBuilder().setSigningKey(decodeSecretKey(key))
-        .build().parseClaimsJwt(token);
+        .build().parseClaimsJws(token);
         return !isDisabled(token);} 
         catch(JwtException e){return false;}
     }

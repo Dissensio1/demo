@@ -15,16 +15,16 @@ import com.example.demo.model.Student;
 import com.example.demo.repository.StudentRepository;
 import com.example.demo.specifications.StudentSpecifications;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class StudentService {
     private List<Student> students = new ArrayList<>();
 
     private final StudentRepository studentRepository;
 
-    public StudentService(StudentRepository studentRepository) {
-        this.studentRepository = studentRepository;
-    }
     
     @CacheEvict(value = "student", allEntries = true)
     @Transactional
