@@ -8,9 +8,12 @@ import org.springframework.stereotype.Service;
 import com.example.demo.Exception.ResourceNotFoundException;
 import com.example.demo.repository.UserRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService{
-    UserRepository userRepository;
+    public final UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{

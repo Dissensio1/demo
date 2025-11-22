@@ -1,7 +1,7 @@
 spring:
     datasource:
         url: jdbc:postgresql://localhost:5432/timetabbble
-        username: postgres
+        username: bebrik
         password: bebrabebra
         driver-class-name: org.postgresql.Driver
     jpa:
@@ -17,14 +17,14 @@ spring:
         version: "0.1"
 ---
 jwt:
-    secret:
+    secret: 6a627a7fb025e2c5db643267523a1c801c1178bed30331a2606fe93f4dd9aa7b
     access:
         duration:
             minutes: 5
-            second: 300
+            seconds: 300
         cookie-name: access_token
     refresh:
         duration:
-            day: 7
-            second: 604800
+            days: 7
+            seconds: 604800
         cookie-name: refresh_token
