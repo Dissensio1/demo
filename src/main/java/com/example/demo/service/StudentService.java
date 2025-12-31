@@ -11,6 +11,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.demo.dto.StudentRequestDTO;
+import com.example.demo.dto.StudentResponseDTO;
+import com.example.demo.mapper.StudentMapper;
 import com.example.demo.model.Student;
 import com.example.demo.repository.StudentRepository;
 import com.example.demo.specifications.StudentSpecifications;
@@ -28,37 +31,45 @@ public class StudentService {
     
     @CacheEvict(value = "student", allEntries = true)
     @Transactional
-    public Student create(Student student) {
-        return studentRepository.save(student);
+    public StudentResponseDTO create(StudentRequestDTO request) {
+        Student student = studentRepository.save(StudentMapper.studentRequestToStudent(request));
+        return StudentMapper.studentToStudentResponseDTO(student);
     }
 
     @Cacheable(value = "students", key = "#root.methodName")
-    public List<Student> getAll() {
-        return studentRepository.findAll();
+    public List<StudentResponseDTO> getAll() {
+        List<Student> students = studentRepository.findAll();
+        List<StudentResponseDTO> studentsResponce = new ArrayList<>();
+        for (Student student : students) {
+            studentsResponce.add(StudentMapper.studentToStudentResponseDTO(student));
+        }
+        return studentsResponce;
     }
     
-    public List<Student> getAllByTitle(String title) {
-        return studentRepository.findByNameStartingWithIgnoreCase(title);
+    public List<StudentResponseDTO> getAllByGroupp(String groupp) {
+        List<Student> students = studentRepository.findAllByGroupp(groupp);
+        List<StudentResponseDTO> studentsResponce = new ArrayList<>();
+        for (Student student : students) {
+            studentsResponce.add(StudentMapper.studentToStudentResponseDTO(student));
+        }
+        return studentsResponce;
     }
     
     @Cacheable(value = "student", key = "#id")
-    public Student getById(Long id) {
-        for (Student student : students) {
-            if (student.getId().equals(id)) {
-                return studentRepository.findById(id).orElse(null);
-            }
-        }
-        return null;
+    public StudentResponseDTO getById(Long id) {
+        Student student = studentRepository.findById(id).orElse(null);
+        return StudentMapper.studentToStudentResponseDTO(student);
     }
 
     @Transactional
     @Caching(evict = {@CacheEvict(value = "students", allEntries = true), @CacheEvict(value = "student", key = "#id")})
-    public Student update(Long id, Student student) {
-        return studentRepository.findById(id).map(existingStudent -> {
-            existingStudent.setName(student.getName());
-            existingStudent.setGroupp(student.getGroupp());
+    public StudentResponseDTO update(Long id, StudentRequestDTO request) {
+        Student student = studentRepository.findById(id).map(existingStudent -> {
+            existingStudent.setName(request.name());
+            existingStudent.setGroupp(request.groupp());
             return studentRepository.save(existingStudent);
         }).orElse(null);
+        return StudentMapper.studentToStudentResponseDTO(student);
     }
 
     @Transactional
@@ -71,7 +82,7 @@ public class StudentService {
         return false;
     }
 
-    public Page<Student> getByFilter(String name, String title, Pageable pageable){
-        return studentRepository.findAll(StudentSpecifications.filter(name, title), pageable);
+    public Page<Student> getByFilter(String name, String groupp, Pageable pageable) {
+        return studentRepository.findAll(StudentSpecifications.filter(name, groupp), pageable);
     }
 }

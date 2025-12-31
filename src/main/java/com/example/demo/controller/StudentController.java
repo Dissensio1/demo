@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.StudentRequestDTO;
+import com.example.demo.dto.StudentResponseDTO;
 import com.example.demo.model.Student;
 import com.example.demo.service.StudentService;
 
@@ -33,19 +36,18 @@ public class StudentController {
     }
     
     @PostMapping
-    public ResponseEntity<Student> addStudent(@RequestBody @Valid Student student) {
-        Student newStudent = studentService.create(student);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newStudent);
+    public ResponseEntity<StudentResponseDTO> addStudent(@RequestBody @Valid StudentRequestDTO studentReqDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(studentService.create(studentReqDTO));
     }
 
     @GetMapping
-    public List<Student> getStudents(@RequestParam(required = false) String name) {
-        if(name == null) return studentService.getAll();
-        else return studentService.getAllByTitle(name);
+    public List<StudentResponseDTO> getStudents(@RequestParam(required = false) String groupp) {
+        if(groupp == null) return studentService.getAll();
+        else return studentService.getAllByGroupp(groupp);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Student> getStudent(@PathVariable Long id) {
+    public ResponseEntity<StudentResponseDTO> getStudent(@PathVariable Long id) {
         return ResponseEntity.ok().body(studentService.getById(id));
     }
 
@@ -58,9 +60,9 @@ public class StudentController {
         }
     
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Student> edit(@PathVariable Long id, @RequestBody Student student){
-        Student updated = studentService.update(id, student);
+    @PatchMapping("/{id}")
+    public ResponseEntity<Object> edit(@PathVariable Long id, @RequestBody StudentRequestDTO studentReqDTO){
+        StudentResponseDTO updated = studentService.update(id, studentReqDTO);
         if(updated != null) return ResponseEntity.ok(updated);
         return ResponseEntity.notFound().build();
     }

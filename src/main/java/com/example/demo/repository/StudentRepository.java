@@ -11,5 +11,5 @@ import java.util.List;
 @Repository
 public interface StudentRepository extends JpaRepository <Student, Long>, JpaSpecificationExecutor<Student>{
         List<Student> findByNameStartingWithIgnoreCase(String name);
-        List<Student> findAllByName(String name);
+        List<Student> findAllByGroupp(String groupp);
     }
