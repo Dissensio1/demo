@@ -18,13 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.StudentRequestDTO;
 import com.example.demo.dto.StudentResponseDTO;
-import com.example.demo.model.Student;
 import com.example.demo.service.StudentService;
 
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.PutMapping;
-
-
 
 @RestController
 @RequestMapping("/api/students")

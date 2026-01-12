@@ -23,12 +23,15 @@ public class Student {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
+
     @Size(min=2, max=100, message = "name")
     @Column(nullable = false, unique = true, length = 100)
     private String name;
+
     @Size(min=2, max=100, message = "group")
     @Column(nullable = false, length = 100)
     private String groupp;
+    
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TimeEntry> recentEntries;
 }

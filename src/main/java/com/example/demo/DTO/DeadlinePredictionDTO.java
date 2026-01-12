@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 
 public class DeadlinePredictionDTO {
     private String subject;
-    private LocalDateTime deadline;
+    private LocalDateTime deadlineDate;
     private Double hoursLeft;
     private RiskLevel risk; // LOW, MEDIUM, HIGH
 }

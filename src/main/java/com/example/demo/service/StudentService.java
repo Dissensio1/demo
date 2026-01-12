@@ -28,7 +28,6 @@ public class StudentService {
 
     private final StudentRepository studentRepository;
 
-    
     @CacheEvict(value = "student", allEntries = true)
     @Transactional
     public StudentResponseDTO create(StudentRequestDTO request) {
@@ -38,7 +37,7 @@ public class StudentService {
 
     @Cacheable(value = "students", key = "#root.methodName")
     public List<StudentResponseDTO> getAll() {
-        List<Student> students = studentRepository.findAll();
+        students = studentRepository.findAll();
         List<StudentResponseDTO> studentsResponce = new ArrayList<>();
         for (Student student : students) {
             studentsResponce.add(StudentMapper.studentToStudentResponseDTO(student));
@@ -47,12 +46,12 @@ public class StudentService {
     }
     
     public List<StudentResponseDTO> getAllByGroupp(String groupp) {
-        List<Student> students = studentRepository.findAllByGroupp(groupp);
-        List<StudentResponseDTO> studentsResponce = new ArrayList<>();
+        students = studentRepository.findAllByGroupp(groupp);
+        List<StudentResponseDTO> studentsResponse = new ArrayList<>();
         for (Student student : students) {
-            studentsResponce.add(StudentMapper.studentToStudentResponseDTO(student));
+            studentsResponse.add(StudentMapper.studentToStudentResponseDTO(student));
         }
-        return studentsResponce;
+        return studentsResponse;
     }
     
     @Cacheable(value = "student", key = "#id")

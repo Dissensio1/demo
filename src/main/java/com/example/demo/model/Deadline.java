@@ -11,8 +11,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,36 +22,21 @@ import lombok.NoArgsConstructor;
 @Data
 
 @Entity
-public class TimeEntry {
+@Table(name = "deadlines")
+public class Deadline {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
-    @ManyToOne
-    @JoinColumn(name = "student_id")
-    private Student student;
-
-    @Size(min=2, max=100, message = "tasktype")
-    @Column(nullable = false, length = 100)
-    @Enumerated(EnumType.STRING)
-    private TaskType type;
-
-    @Size(min=2, max=100, message = "subject")
+    @Size(min = 2, max = 100, message = "subject")
     @Column(nullable = false, length = 100)
     private String subject;
 
-    @Size(min=2, max=100, message = "description")
     @Column(nullable = false, length = 100)
-    private String description;
-
-    @Size(min=2, max=100, message = "starttime")
+    @Enumerated(EnumType.STRING)
+    private TaskType type;
+    
+    @Size(min = 2, max = 100, message = "deadlineDate")
     @Column(nullable = false, length = 100)
-    private LocalDateTime timestart;
-
-    @Size(min=2, max=100, message = "endtime")
-    @Column(nullable = false, length = 100)
-    private LocalDateTime timeend;
-
-    @Column()
-    private boolean isBillable; // учётное время
+    private LocalDateTime deadlineDate;
 }
