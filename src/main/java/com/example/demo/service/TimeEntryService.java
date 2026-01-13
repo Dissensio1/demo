@@ -12,7 +12,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.demo.enums.TaskType;
+import com.example.demo.dto.TimeEntryRequestDTO;
+import com.example.demo.dto.TimeEntryResponseDTO;
+import com.example.demo.mapper.TimeEntryMapper;
 import com.example.demo.model.Student;
 import com.example.demo.model.TimeEntry;
 import com.example.demo.repository.TimeEntryRepository;
@@ -31,37 +33,55 @@ public class TimeEntryService {
     
     @CacheEvict(value = "timeEntry", allEntries = true)
     @Transactional
-    public TimeEntry create(TimeEntry timeEntry) {
-        return timeEntryRepository.save(timeEntry);
+    public TimeEntryResponseDTO create(TimeEntryRequestDTO timeEntryRequestDTO) {
+        TimeEntry timeEntry = timeEntryRepository.save(TimeEntryMapper.timeEntryRequestToTimeEntry(timeEntryRequestDTO));
+        return TimeEntryMapper.timeEntryToTimeEntryResponseDTO(timeEntry);
     }
 
     @Cacheable(value = "timeEntries", key = "#root.methodName")
-    public List<TimeEntry> getAll() {
-        return timeEntryRepository.findAll();
+    public List<TimeEntryResponseDTO> getAll(){
+        timeEntries = timeEntryRepository.findAll();
+        List<TimeEntryResponseDTO> timeEntriesResponse = new ArrayList<>();
+        for(TimeEntry timeEntry: timeEntries){
+            timeEntriesResponse.add(TimeEntryMapper.timeEntryToTimeEntryResponseDTO(timeEntry));
+        }
+        return timeEntriesResponse;
     }
     
-    public List<TimeEntry> getAllByType(TaskType type) {
-        return timeEntryRepository.findAllByType(type);
+    public List<TimeEntryResponseDTO> getAllByType(String type) {
+        timeEntries = timeEntryRepository.findAllByType(type);
+        List<TimeEntryResponseDTO> timeEntriesResponse = new ArrayList<>();
+        for (TimeEntry timeEntry : timeEntries) {
+            timeEntriesResponse.add(TimeEntryMapper.timeEntryToTimeEntryResponseDTO(timeEntry));
+        }
+        return timeEntriesResponse;
+    }
+
+    public List<TimeEntryResponseDTO> getAllByStudent(Student student) {
+        timeEntries = timeEntryRepository.findAllByStudent(student);
+        List<TimeEntryResponseDTO> timeEntriesResponse = new ArrayList<>();
+        for (TimeEntry timeEntry : timeEntries) {
+            timeEntriesResponse.add(TimeEntryMapper.timeEntryToTimeEntryResponseDTO(timeEntry));
+        }
+        return timeEntriesResponse;
     }
     
     @Cacheable(value = "timeEntry", key = "#id")
-    public TimeEntry getById(Long id) {
-        for (TimeEntry timeEntry : timeEntries) {
-            if (timeEntry.getId().equals(id)) {
-                return timeEntryRepository.findById(id).orElse(null);
-            }
-        }
-        return null;
+    public TimeEntryResponseDTO getById(Long id) {
+        TimeEntry timeEntry = timeEntryRepository.findById(id).orElse(null);
+        return TimeEntryMapper.timeEntryToTimeEntryResponseDTO(timeEntry);
     }
 
     @Transactional
     @Caching(evict = {@CacheEvict(value = "timeEntries", allEntries = true), @CacheEvict(value = "timeEntry", key = "#id")})
-    public TimeEntry update(Long id, TimeEntry timeEntry) {
-        return timeEntryRepository.findById(id).map(existingTimeEntry -> {
-            existingTimeEntry.setTimestart(timeEntry.getTimestart());
-            existingTimeEntry.setTimeend(timeEntry.getTimeend());
+    public TimeEntryResponseDTO update(Long id, TimeEntryRequestDTO request) {
+        TimeEntry timeEntry = timeEntryRepository.findById(id).map(existingTimeEntry -> {
+            existingTimeEntry.setStudent(request.student());
+            existingTimeEntry.setType(request.type());
+            existingTimeEntry.setSubject(request.subject());
             return timeEntryRepository.save(existingTimeEntry);
         }).orElse(null);
+        return TimeEntryMapper.timeEntryToTimeEntryResponseDTO(timeEntry);
     }
 
     @Transactional
@@ -74,9 +94,7 @@ public class TimeEntryService {
         return false;
     }
 
-    public Page<TimeEntry> getByFilter(Student student, TaskType type,
-    LocalDateTime dateTimeStart, LocalDateTime dateTimeEnd,
-    boolean expression, Pageable pageable){
-        return timeEntryRepository.findAll(TimeEntrySpecification.filter(type, student, dateTimeStart, dateTimeEnd, expression), pageable);
+    public Page<TimeEntry> getByFilter(String type, Student student, boolean expression, Pageable pageable) {
+        return timeEntryRepository.findAll(TimeEntrySpecification.filter(type, student, expression), pageable);
     }
 }

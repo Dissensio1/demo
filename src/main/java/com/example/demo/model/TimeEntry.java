@@ -45,11 +45,9 @@ public class TimeEntry {
     @Column(nullable = false, length = 100)
     private String description;
 
-    @Size(min=2, max=100, message = "starttime")
     @Column(nullable = false, length = 100)
     private LocalDateTime timestart;
 
-    @Size(min=2, max=100, message = "endtime")
     @Column(nullable = false, length = 100)
     private LocalDateTime timeend;
 

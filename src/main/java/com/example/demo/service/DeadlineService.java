@@ -11,11 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.dto.DeadlineRequestDTO;
 import com.example.demo.dto.DeadlineResponseDTO;
-import com.example.demo.dto.StudentResponseDTO;
 import com.example.demo.mapper.DeadlineMapper;
-import com.example.demo.mapper.StudentMapper;
 import com.example.demo.model.Deadline;
-import com.example.demo.model.Student;
 import com.example.demo.repository.DeadlineRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -28,11 +25,14 @@ public class DeadlineService {
 
     private final DeadlineRepository deadlineRepository;
 
+    @CacheEvict(value = "deadline", allEntries = true)
+    @Transactional
     public DeadlineResponseDTO create(DeadlineRequestDTO request){
         Deadline deadline = deadlineRepository.save(DeadlineMapper.deadlineRequestToDeadline(request));
         return DeadlineMapper.deadlineToDeadlineResponseDTO(deadline);
     }
 
+    @Cacheable(value = "deadlines", key = "#root.methodName")
     public List<DeadlineResponseDTO> getAll(){
         deadlines = deadlineRepository.findAll();
         List<DeadlineResponseDTO> deadlinesResponse = new ArrayList<>();

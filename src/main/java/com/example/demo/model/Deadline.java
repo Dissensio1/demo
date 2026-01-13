@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import com.example.demo.enums.TaskType;
 
@@ -11,6 +12,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -26,7 +28,7 @@ import lombok.NoArgsConstructor;
 public class Deadline {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @Size(min = 2, max = 100, message = "subject")
     @Column(nullable = false, length = 100)
@@ -39,4 +41,7 @@ public class Deadline {
     @Size(min = 2, max = 100, message = "deadlineDate")
     @Column(nullable = false, length = 100)
     private LocalDateTime deadlineDate;
+
+    @ManyToMany(mappedBy = "deadlines")
+    private Set<Student> students;
 }
