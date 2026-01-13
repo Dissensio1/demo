@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.TimeEntryRequestDTO;
 import com.example.demo.dto.TimeEntryResponseDTO;
+import com.example.demo.enums.TaskType;
 import com.example.demo.model.Student;
 import com.example.demo.service.TimeEntryService;
 
@@ -37,13 +38,13 @@ public class TimeEntryController{
         return ResponseEntity.status(HttpStatus.CREATED).body(timeEntryService.create(request));
     }
 
-    @GetMapping
-    public List<TimeEntryResponseDTO> getTimeEntriesByType(@RequestParam(required = false) String type) {
+    @GetMapping("/type")
+    public List<TimeEntryResponseDTO> getTimeEntriesByType(@RequestParam(required = false) TaskType type) {
         if(type == null) return timeEntryService.getAll();
         else return timeEntryService.getAllByType(type);
     }
 
-    @GetMapping
+    @GetMapping("/student")
     public List<TimeEntryResponseDTO> getTimeEntriesByStudent(@RequestParam(required = false) Student student) {
         if(student == null) return timeEntryService.getAll();
         else return timeEntryService.getAllByStudent(student);

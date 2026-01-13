@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 public class TimeEntry {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "student_id")

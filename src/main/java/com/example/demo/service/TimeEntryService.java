@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,22 +13,22 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.dto.TimeEntryRequestDTO;
 import com.example.demo.dto.TimeEntryResponseDTO;
+import com.example.demo.enums.TaskType;
 import com.example.demo.mapper.TimeEntryMapper;
 import com.example.demo.model.Student;
 import com.example.demo.model.TimeEntry;
 import com.example.demo.repository.TimeEntryRepository;
 import com.example.demo.specifications.TimeEntrySpecification;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class TimeEntryService {
     private List<TimeEntry> timeEntries = new ArrayList<>();
 
     private final TimeEntryRepository timeEntryRepository;
-
-    public TimeEntryService(TimeEntryRepository timeEntryRepository) {
-        this.timeEntryRepository = timeEntryRepository;
-    }
     
     @CacheEvict(value = "timeEntry", allEntries = true)
     @Transactional
@@ -48,7 +47,7 @@ public class TimeEntryService {
         return timeEntriesResponse;
     }
     
-    public List<TimeEntryResponseDTO> getAllByType(String type) {
+    public List<TimeEntryResponseDTO> getAllByType(TaskType type) {
         timeEntries = timeEntryRepository.findAllByType(type);
         List<TimeEntryResponseDTO> timeEntriesResponse = new ArrayList<>();
         for (TimeEntry timeEntry : timeEntries) {
