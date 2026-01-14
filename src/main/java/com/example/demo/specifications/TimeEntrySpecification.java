@@ -2,14 +2,13 @@ package com.example.demo.specifications;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import com.example.demo.model.Student;
 import com.example.demo.model.TimeEntry;
 
 public class TimeEntrySpecification {
-    private static Specification<TimeEntry> studentLike(Student student){
+    private static Specification<TimeEntry> studentIdLike(Long studentId){
         return (root, query, criteriaBuilder) ->{
-            if(student==null){return null;}
-            return criteriaBuilder.equal(root.get("student"), student);
+            if(studentId==null){return null;}
+            return criteriaBuilder.equal(root.get("studentId"), studentId);
         };
     }
 
@@ -26,10 +25,10 @@ public class TimeEntrySpecification {
         };
     }
 
-    public static Specification<TimeEntry> filter(String type, Student student, boolean expression){
+    public static Specification<TimeEntry> filter(String type, Long studentId, boolean expression){
         return Specification.allOf(
             typeLike(type),
-            studentLike(student),
+            studentIdLike(studentId),
             isBillableLike(expression)
         );
     }

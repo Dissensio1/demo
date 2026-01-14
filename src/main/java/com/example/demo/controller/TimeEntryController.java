@@ -35,6 +35,7 @@ public class TimeEntryController{
     
     @PostMapping
     public ResponseEntity<TimeEntryResponseDTO> addTimeEntry(@RequestBody @Valid TimeEntryRequestDTO request) {
+        System.out.println("✅ Запрос дошёл до контроллера!");
         return ResponseEntity.status(HttpStatus.CREATED).body(timeEntryService.create(request));
     }
 
@@ -57,11 +58,11 @@ public class TimeEntryController{
 
     @GetMapping("/filter")
     public ResponseEntity<Object> getByFilter(
-        @RequestParam(required = false)Student student,
+        @RequestParam(required = false)Long studentId,
         @RequestParam(required = false)String type,
         @RequestParam(required = false)boolean expression,
         @PageableDefault(page = 0, size = 10, sort = "title")Pageable pageable){
-            return ResponseEntity.ok(timeEntryService.getByFilter(type, student, expression, pageable));
+            return ResponseEntity.ok(timeEntryService.getByFilter(type, studentId, expression, pageable));
         }
     
     @PatchMapping("/{id}")

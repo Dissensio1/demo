@@ -38,11 +38,11 @@ public class StudentService {
     @Cacheable(value = "students", key = "#root.methodName")
     public List<StudentResponseDTO> getAll() {
         students = studentRepository.findAll();
-        List<StudentResponseDTO> studentsResponce = new ArrayList<>();
+        List<StudentResponseDTO> studentsResponse = new ArrayList<>();
         for (Student student : students) {
-            studentsResponce.add(StudentMapper.studentToStudentResponseDTO(student));
+            studentsResponse.add(StudentMapper.studentToStudentResponseDTO(student));
         }
-        return studentsResponce;
+        return studentsResponse;
     }
     
     public List<StudentResponseDTO> getAllByGroupp(String groupp) {

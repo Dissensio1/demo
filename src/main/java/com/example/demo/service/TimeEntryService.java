@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,9 +18,11 @@ import com.example.demo.enums.TaskType;
 import com.example.demo.mapper.TimeEntryMapper;
 import com.example.demo.model.Student;
 import com.example.demo.model.TimeEntry;
+import com.example.demo.repository.StudentRepository;
 import com.example.demo.repository.TimeEntryRepository;
 import com.example.demo.specifications.TimeEntrySpecification;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -29,12 +32,25 @@ public class TimeEntryService {
     private List<TimeEntry> timeEntries = new ArrayList<>();
 
     private final TimeEntryRepository timeEntryRepository;
+    private final StudentRepository studentRepository;
     
     @CacheEvict(value = "timeEntry", allEntries = true)
     @Transactional
-    public TimeEntryResponseDTO create(TimeEntryRequestDTO timeEntryRequestDTO) {
-        TimeEntry timeEntry = timeEntryRepository.save(TimeEntryMapper.timeEntryRequestToTimeEntry(timeEntryRequestDTO));
-        return TimeEntryMapper.timeEntryToTimeEntryResponseDTO(timeEntry);
+    public TimeEntryResponseDTO create(TimeEntryRequestDTO request) {
+        Student student = studentRepository.findById(request.studentId())
+            .orElseThrow(() -> new EntityNotFoundException("Student not found with id: " + request.studentId()));
+
+        TimeEntry timeEntry = new TimeEntry();
+        timeEntry.setStudent(student);
+        timeEntry.setType(request.type());
+        timeEntry.setSubject(request.subject());
+        timeEntry.setTimestart(LocalDateTime.now());
+        timeEntry.setTimeend(null);
+        timeEntry.setDescription("Auto-created entry");
+        timeEntry.setBillable(false);
+
+        TimeEntry saved = timeEntryRepository.save(timeEntry);
+        return TimeEntryMapper.timeEntryToTimeEntryResponseDTO(saved);
     }
 
     @Cacheable(value = "timeEntries", key = "#root.methodName")
@@ -75,7 +91,6 @@ public class TimeEntryService {
     @Caching(evict = {@CacheEvict(value = "timeEntries", allEntries = true), @CacheEvict(value = "timeEntry", key = "#id")})
     public TimeEntryResponseDTO update(Long id, TimeEntryRequestDTO request) {
         TimeEntry timeEntry = timeEntryRepository.findById(id).map(existingTimeEntry -> {
-            existingTimeEntry.setStudent(request.student());
             existingTimeEntry.setType(request.type());
             existingTimeEntry.setSubject(request.subject());
             return timeEntryRepository.save(existingTimeEntry);
@@ -93,7 +108,7 @@ public class TimeEntryService {
         return false;
     }
 
-    public Page<TimeEntry> getByFilter(String type, Student student, boolean expression, Pageable pageable) {
-        return timeEntryRepository.findAll(TimeEntrySpecification.filter(type, student, expression), pageable);
+    public Page<TimeEntry> getByFilter(String type, Long studentId, boolean expression, Pageable pageable) {
+        return timeEntryRepository.findAll(TimeEntrySpecification.filter(type, studentId, expression), pageable);
     }
 }
