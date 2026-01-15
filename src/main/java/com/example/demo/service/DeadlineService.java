@@ -9,12 +9,16 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.demo.dto.DeadlinePredictionDTO;
 import com.example.demo.dto.DeadlineRequestDTO;
 import com.example.demo.dto.DeadlineResponseDTO;
 import com.example.demo.mapper.DeadlineMapper;
 import com.example.demo.model.Deadline;
+import com.example.demo.model.Student;
 import com.example.demo.repository.DeadlineRepository;
+import com.example.demo.repository.StudentRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -22,21 +26,24 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DeadlineService {
     private List<Deadline> deadlines = new ArrayList<>();
+    private String entNotFndExcpt = "Student not found";
 
     private final DeadlineRepository deadlineRepository;
+    private final StudentRepository studentRepository;
+    private final DeadlineMapper deadlineMapper;
 
     @CacheEvict(value = "deadline", allEntries = true)
     @Transactional
-    public DeadlineResponseDTO create(DeadlineRequestDTO request){
+    public DeadlineResponseDTO create(DeadlineRequestDTO request) {
         Deadline deadline = deadlineRepository.save(DeadlineMapper.deadlineRequestToDeadline(request));
         return DeadlineMapper.deadlineToDeadlineResponseDTO(deadline);
     }
 
     @Cacheable(value = "deadlines", key = "#root.methodName")
-    public List<DeadlineResponseDTO> getAll(){
+    public List<DeadlineResponseDTO> getAll() {
         deadlines = deadlineRepository.findAll();
         List<DeadlineResponseDTO> deadlinesResponse = new ArrayList<>();
-        for(Deadline deadline: deadlines){
+        for (Deadline deadline : deadlines) {
             deadlinesResponse.add(DeadlineMapper.deadlineToDeadlineResponseDTO(deadline));
         }
         return deadlinesResponse;
@@ -51,6 +58,15 @@ public class DeadlineService {
         return deadlinesResponse;
     }
 
+    public List<DeadlineResponseDTO> getAllByStudentId(Long id) {
+        deadlines = deadlineRepository.findAllByStudentId(id);
+        List<DeadlineResponseDTO> deadlinesResponse = new ArrayList<>();
+        for (Deadline deadline : deadlines) {
+            deadlinesResponse.add(DeadlineMapper.deadlineToDeadlineResponseDTO(deadline));
+        }
+        return deadlinesResponse;
+    }
+
     @Cacheable(value = "deadline", key = "#id")
     public DeadlineResponseDTO getById(Long id) {
         Deadline deadline = deadlineRepository.findById(id).orElse(null);
@@ -58,7 +74,8 @@ public class DeadlineService {
     }
 
     @Transactional
-    @Caching(evict = {@CacheEvict(value = "deadlines", allEntries = true), @CacheEvict(value = "deadline", key = "#id")})
+    @Caching(evict = { @CacheEvict(value = "deadlines", allEntries = true),
+            @CacheEvict(value = "deadline", key = "#id") })
     public DeadlineResponseDTO update(Long id, DeadlineRequestDTO request) {
         Deadline deadline = deadlineRepository.findById(id).map(existingDeadline -> {
             existingDeadline.setSubject(request.subject());
@@ -69,12 +86,49 @@ public class DeadlineService {
     }
 
     @Transactional
-    @Caching(evict = {@CacheEvict(value = "deadlines", allEntries = true), @CacheEvict(value = "deadline", key = "#id")})
-    public boolean deleteById(Long id){
-        if(deadlineRepository.existsById(id)){
+    @Caching(evict = { @CacheEvict(value = "deadlines", allEntries = true),
+            @CacheEvict(value = "deadline", key = "#id") })
+    public boolean deleteById(Long id) {
+        if (deadlineRepository.existsById(id)) {
             deadlineRepository.deleteById(id);
             return true;
         }
         return false;
+    }
+
+    @Transactional
+    public DeadlineResponseDTO addDeadlineToStudent(Long studentId, Long deadlineId) {
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new EntityNotFoundException(entNotFndExcpt));
+        Deadline deadline = deadlineRepository.findById(deadlineId)
+                .orElseThrow(() -> new EntityNotFoundException("Deadline not found"));
+        student.getDeadlines().add(deadline);
+        deadline.getStudents().add(student);
+        studentRepository.save(student);
+        deadlineRepository.save(deadline);
+        return DeadlineMapper.deadlineToDeadlineResponseDTO(deadline);
+    }
+
+    @Transactional
+    public DeadlineResponseDTO removeDeadlineFromStudent(Long studentId, Long deadlineId) {
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new EntityNotFoundException(entNotFndExcpt));
+        Deadline deadline = deadlineRepository.findById(deadlineId)
+                .orElseThrow(() -> new EntityNotFoundException("Deadline not found"));
+
+        student.getDeadlines().remove(deadline);
+        deadline.getStudents().remove(student);
+        studentRepository.save(student);
+        deadlineRepository.save(deadline);
+        return DeadlineMapper.deadlineToDeadlineResponseDTO(deadline);
+    }
+
+    @Transactional
+    public List<DeadlinePredictionDTO> getDeadlinePredictionsForStudent(Long studentId) {
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new EntityNotFoundException(entNotFndExcpt));
+
+        return student.getDeadlines().stream()
+                .map(deadline -> deadlineMapper.deadlineToDeadlinePredictionDto(deadline, studentId)).toList();
     }
 }

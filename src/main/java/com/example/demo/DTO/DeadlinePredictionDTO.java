@@ -1,6 +1,6 @@
 package com.example.demo.dto;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import com.example.demo.enums.RiskLevel;
 
@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 
 public class DeadlinePredictionDTO {
     private String subject;
-    private LocalDateTime deadlineDate;
+    private LocalDate deadlineDate;
     private Double hoursLeft;
     private RiskLevel risk; // LOW, MEDIUM, HIGH
 }

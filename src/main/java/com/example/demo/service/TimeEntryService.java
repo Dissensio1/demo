@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +47,7 @@ public class TimeEntryService {
         timeEntry.setSubject(request.subject());
         timeEntry.setTimestart(LocalDateTime.now());
         timeEntry.setTimeend(null);
+        timeEntry.setDuration(0.0);
         timeEntry.setDescription("Auto-created entry");
         timeEntry.setBillable(false);
 
@@ -72,8 +74,8 @@ public class TimeEntryService {
         return timeEntriesResponse;
     }
 
-    public List<TimeEntryResponseDTO> getAllByStudent(Student student) {
-        timeEntries = timeEntryRepository.findAllByStudent(student);
+    public List<TimeEntryResponseDTO> getAllByStudentId(Long id) {
+        timeEntries = timeEntryRepository.findAllByStudentId(id);
         List<TimeEntryResponseDTO> timeEntriesResponse = new ArrayList<>();
         for (TimeEntry timeEntry : timeEntries) {
             timeEntriesResponse.add(TimeEntryMapper.timeEntryToTimeEntryResponseDTO(timeEntry));
@@ -110,5 +112,19 @@ public class TimeEntryService {
 
     public Page<TimeEntry> getByFilter(String type, Long studentId, boolean expression, Pageable pageable) {
         return timeEntryRepository.findAll(TimeEntrySpecification.filter(type, studentId, expression), pageable);
+    }
+
+    @Transactional
+    @CacheEvict(value = "timeEntry", allEntries = true)
+    public TimeEntryResponseDTO setTimeEnd(Long id) {
+        TimeEntry timeEntry = timeEntryRepository.findById(id).map(existingTimeEntry -> {
+            existingTimeEntry.setTimeend(LocalDateTime.now());
+            LocalDateTime startTime = existingTimeEntry.getTimestart();
+            LocalDateTime endTime = existingTimeEntry.getTimeend();
+            Duration duration = Duration.between(startTime, endTime);
+            existingTimeEntry.setDuration((double)duration.toMinutes() / 60);
+            return timeEntryRepository.save(existingTimeEntry);
+        }).orElse(null);
+        return TimeEntryMapper.timeEntryToTimeEntryResponseDTO(timeEntry);
     }
 }

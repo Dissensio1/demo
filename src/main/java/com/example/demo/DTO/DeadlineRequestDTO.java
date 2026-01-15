@@ -1,5 +1,7 @@
 package com.example.demo.dto;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
-public record DeadlineRequestDTO(String subject, LocalDateTime deadlineDate) {}
+import com.example.demo.enums.TaskType;
+
+public record DeadlineRequestDTO(String subject, LocalDate deadlineDate, TaskType type) {}

@@ -2,9 +2,11 @@ package com.example.demo.mapper;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.stream.Collectors;
 
 import com.example.demo.dto.StudentRequestDTO;
 import com.example.demo.dto.StudentResponseDTO;
+import com.example.demo.model.Deadline;
 import com.example.demo.model.Student;
 
 public class StudentMapper {
@@ -14,6 +16,6 @@ public class StudentMapper {
 
     public static StudentResponseDTO studentToStudentResponseDTO(Student student) {
         return new StudentResponseDTO(student.getId(), student.getName(), student.getGroupp(),
-                TimeEntryMapper.timeEntryToTimeEntryResponseDTOList(student.getRecentEntries()), student.getDeadlines());
+                TimeEntryMapper.timeEntryToTimeEntryResponseDTOList(student.getRecentEntries()), student.getDeadlines().stream().map(Deadline::getId).collect(Collectors.toSet()));
     }
 }

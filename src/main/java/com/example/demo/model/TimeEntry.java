@@ -50,6 +50,9 @@ public class TimeEntry {
     @Column(length = 100)
     private LocalDateTime timeend;
 
+    @Column(length = 10)
+    private Double duration;
+
     @Column()
     private boolean isBillable; // учётное время
 }

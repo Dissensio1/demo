@@ -16,20 +16,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.DeadlinePredictionDTO;
+import com.example.demo.dto.DeadlineResponseDTO;
 import com.example.demo.dto.StudentRequestDTO;
 import com.example.demo.dto.StudentResponseDTO;
+import com.example.demo.service.DeadlineService;
 import com.example.demo.service.StudentService;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/students")
+@RequiredArgsConstructor
 public class StudentController {
     private final StudentService studentService;
-    
-    public StudentController(StudentService studentService) {
-        this.studentService = studentService;
-    }
+    private final DeadlineService deadlineService;
     
     @PostMapping
     public ResponseEntity<StudentResponseDTO> addStudent(@RequestBody @Valid StudentRequestDTO studentReqDTO) {
@@ -69,5 +71,24 @@ public class StudentController {
             ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/addDeadlineTo/{studentId}")
+    public ResponseEntity<Object> addDeadlineToStudent(@PathVariable Long studentId, @RequestParam Long deadlineId){
+        DeadlineResponseDTO updated = deadlineService.addDeadlineToStudent(studentId, deadlineId);
+        if(updated != null) return ResponseEntity.ok(updated);
+        return ResponseEntity.notFound().build();
+    }
+
+    @PatchMapping("/removeDeadlineFrom/{studentId}")
+    public ResponseEntity<Object> removeDeadlineFromStudent(@PathVariable Long studentId, @RequestParam Long deadlineId){
+        DeadlineResponseDTO updated = deadlineService.removeDeadlineFromStudent(studentId, deadlineId);
+        if(updated != null) return ResponseEntity.ok(updated);
+        return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/{studentId}/predictions")
+    public List<DeadlinePredictionDTO> getPredictions(@PathVariable Long studentId) {
+        return deadlineService.getDeadlinePredictionsForStudent(studentId);
     }
 }

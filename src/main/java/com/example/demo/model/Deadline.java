@@ -1,6 +1,6 @@
 package com.example.demo.model;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Set;
 
 import com.example.demo.enums.TaskType;
@@ -16,12 +16,19 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-@AllArgsConstructor
+
 @NoArgsConstructor
-@Data
+@AllArgsConstructor
+@Getter
+@Setter
+@ToString(exclude = {"students"})
+@EqualsAndHashCode(exclude = {"students"})
 
 @Entity
 @Table(name = "deadlines")
@@ -34,13 +41,11 @@ public class Deadline {
     @Column(nullable = false, length = 100)
     private String subject;
 
-    @Column(nullable = false, length = 100)
     @Enumerated(EnumType.STRING)
     private TaskType type;
     
-    @Size(min = 2, max = 100, message = "deadlineDate")
-    @Column(nullable = false, length = 100)
-    private LocalDateTime deadlineDate;
+    @Column(nullable = false)
+    private LocalDate deadlineDate;
 
     @ManyToMany(mappedBy = "deadlines")
     private Set<Student> students;

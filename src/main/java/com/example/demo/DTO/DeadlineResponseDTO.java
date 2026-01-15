@@ -1,9 +1,8 @@
 package com.example.demo.dto;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Set;
 
 import com.example.demo.enums.TaskType;
-import com.example.demo.model.Student;
 
-public record DeadlineResponseDTO(Long id, String subject, TaskType type, LocalDateTime deadlineDate, Set<Student> students) {}
+public record DeadlineResponseDTO(Long id, String subject, TaskType type, LocalDate deadlineDate, Set<Long> studentIds) {}

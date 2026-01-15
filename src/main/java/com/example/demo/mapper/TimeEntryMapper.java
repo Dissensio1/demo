@@ -10,12 +10,12 @@ import com.example.demo.model.TimeEntry;
 
 public class TimeEntryMapper {
     public static TimeEntry timeEntryRequestToTimeEntry(TimeEntryRequestDTO request) {
-        return new TimeEntry(null, null, request.type(), request.subject(), "", LocalDateTime.now(), null, false);
+        return new TimeEntry(null, null, request.type(), request.subject(), "", LocalDateTime.now(), null, 0.0, false);
     }
 
     public static TimeEntryResponseDTO timeEntryToTimeEntryResponseDTO(TimeEntry timeEntry) {
         return new TimeEntryResponseDTO(timeEntry.getId(), timeEntry.getStudent().getId(), timeEntry.getType(),
-                timeEntry.getSubject(), timeEntry.getDescription(), timeEntry.getTimestart(), timeEntry.getTimeend(), timeEntry.isBillable());
+                timeEntry.getSubject(), timeEntry.getDescription(), timeEntry.getTimestart(), timeEntry.getTimeend(), timeEntry.getDuration(), timeEntry.isBillable());
     }
     public static List<TimeEntryResponseDTO> timeEntryToTimeEntryResponseDTOList(List<TimeEntry> timeEntries) {
         if (timeEntries == null) {

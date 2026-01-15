@@ -17,27 +17,32 @@ import com.example.demo.dto.DeadlineResponseDTO;
 import com.example.demo.service.DeadlineService;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/deadlines")
+@RequiredArgsConstructor
 public class DeadlineController {
     private final DeadlineService deadlineService;
-
-    public DeadlineController(DeadlineService deadlineService){
-        this.deadlineService = deadlineService;
-    }
 
     @PostMapping
     public ResponseEntity<DeadlineResponseDTO> addDeadline(@RequestBody @Valid DeadlineRequestDTO deadlineReqDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(deadlineService.create(deadlineReqDTO));
     }
 
-    @GetMapping
+    @GetMapping("/type")
     public List<DeadlineResponseDTO> getDeadlines(@RequestParam(required = false) String type) {
         if(type == null) return deadlineService.getAll();
         else return deadlineService.getAllByType(type);
+    }
+
+    @GetMapping("/studentId")
+    public List<DeadlineResponseDTO> getDeadlines(@RequestParam(required = false) Long id) {
+        if(id == null) return deadlineService.getAll();
+        else return deadlineService.getAllByStudentId(id);
     }
 
     @GetMapping("/{id}")
