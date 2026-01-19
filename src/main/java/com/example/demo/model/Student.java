@@ -35,7 +35,7 @@ public class Student {
     private Long id;
 
     @Size(min=2, max=100, message = "name")
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = false, length = 100)
     private String name;
 
     @Size(min=2, max=100, message = "group")
