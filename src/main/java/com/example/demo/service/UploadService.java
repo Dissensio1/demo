@@ -11,6 +11,8 @@ import java.util.List;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class UploadService {
     private final StudentService studentService;
     private final DeadlineService deadlineService;
+    private final Logger logger = LoggerFactory.getLogger(UploadService.class);
 
     @Value("${spring.servlet.multipart.location}")
     private String uploadLocation;
@@ -41,7 +44,7 @@ public class UploadService {
         if (filename == null || !filename.toLowerCase().endsWith(".csv")) {
             throw new IllegalArgumentException("The system supports only CSV files");
         }
-
+        logger.debug("File validation passed: {}", filename);
     }
 
     public UploadResponseDTO importDeadlines(MultipartFile file) {
@@ -75,6 +78,7 @@ public class UploadService {
                         failureCount++;
                     }
                 }
+            logger.info("Deadlines import completed. Success: {}, Failures: {}", successCount, failureCount);
             return new UploadResponseDTO(successCount + failureCount,
                 successCount,
                 failureCount,
@@ -115,6 +119,7 @@ public class UploadService {
                         failureCount++;
                     }
                 }
+            logger.info("Students import completed. Success: {}, Failures: {}", successCount, failureCount);
             return new UploadResponseDTO(successCount + failureCount,
                 successCount,
                 failureCount,

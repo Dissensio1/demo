@@ -3,6 +3,8 @@ package com.example.demo.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -18,6 +20,7 @@ import com.example.demo.model.Student;
 import com.example.demo.repository.StudentRepository;
 import com.example.demo.specifications.StudentSpecifications;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -27,11 +30,14 @@ public class StudentService {
     private List<Student> students = new ArrayList<>();
 
     private final StudentRepository studentRepository;
+    private final Logger logger = LoggerFactory.getLogger(StudentService.class);
 
     @CacheEvict(value = "student", allEntries = true)
     @Transactional
     public StudentResponseDTO create(StudentRequestDTO request) {
+        logger.info("Creating new Student: {} group: {}", request.name(), request.groupp());
         Student student = studentRepository.save(StudentMapper.studentRequestToStudent(request));
+        logger.info("Successfully created Student with ID: {} name: {}", student.getId(), student.getName());
         return StudentMapper.studentToStudentResponseDTO(student);
     }
 
@@ -42,6 +48,7 @@ public class StudentService {
         for (Student student : students) {
             studentsResponse.add(StudentMapper.studentToStudentResponseDTO(student));
         }
+        logger.info("Successfully retrieved all Students. Total count: {}", studentsResponse.size());
         return studentsResponse;
     }
     
@@ -51,23 +58,33 @@ public class StudentService {
         for (Student student : students) {
             studentsResponse.add(StudentMapper.studentToStudentResponseDTO(student));
         }
+        logger.info("Successfully retrieved all Students by group. Total count: {}", studentsResponse.size());
         return studentsResponse;
     }
     
     @Cacheable(value = "student", key = "#id")
     public StudentResponseDTO getById(Long id) {
         Student student = studentRepository.findById(id).orElse(null);
-        return StudentMapper.studentToStudentResponseDTO(student);
+        if(student != null){
+            logger.info("Successfully retrieved Student by id: {}.", student.getId());
+            return StudentMapper.studentToStudentResponseDTO(student);
+        }
+        throw new EntityNotFoundException("There's no Student with ID: " + id.toString());
     }
 
     @Transactional
     @Caching(evict = {@CacheEvict(value = "students", allEntries = true), @CacheEvict(value = "student", key = "#id")})
     public StudentResponseDTO update(Long id, StudentRequestDTO request) {
         Student student = studentRepository.findById(id).map(existingStudent -> {
+            logger.debug("Values before update - name: {}, group: {}", existingStudent.getName(), existingStudent.getGroupp());
             existingStudent.setName(request.name());
             existingStudent.setGroupp(request.groupp());
+            logger.info("Successfully updated Student with ID: {}", id);
             return studentRepository.save(existingStudent);
         }).orElse(null);
+        if (student == null) {
+            throw new EntityNotFoundException("There's no Student with ID: " + id.toString());
+        }
         return StudentMapper.studentToStudentResponseDTO(student);
     }
 
@@ -76,12 +93,15 @@ public class StudentService {
     public boolean deleteById(Long id){
         if(studentRepository.existsById(id)){
             studentRepository.deleteById(id);
+            logger.info("Successfully deleted Student with ID: {}", id);
             return true;
         }
-        return false;
+        throw new EntityNotFoundException("There's no Student with ID: " + id.toString());
     }
 
     public Page<Student> getByFilter(String name, String groupp, Pageable pageable) {
-        return studentRepository.findAll(StudentSpecifications.filter(name, groupp), pageable);
+        Page<Student> result = studentRepository.findAll(StudentSpecifications.filter(name, groupp), pageable);
+        logger.info("Successfully filtered Students. Found {} results", result.getNumberOfElements());
+        return result;
     }
 }

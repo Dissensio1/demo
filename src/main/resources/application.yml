@@ -29,6 +29,12 @@ jwt:
             seconds: 604800
         cookie-name: refresh_token
 ---
+logging:
+    file:
+        name: logs/application.log
+    pattern:
+        console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %level - %msg%n"
+---
 spring:
     servlet:
         multipart:
