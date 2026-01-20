@@ -13,5 +13,5 @@ import com.example.demo.model.Deadline;
 public interface DeadlineRepository extends JpaRepository<Deadline, Long>, JpaSpecificationExecutor<Deadline>{
     List<Deadline> findAllByType(String type);
     @Query("SELECT d FROM Deadline d JOIN d.students s WHERE s.id = :studentId")
-    List<Deadline> findAllByStudentId(Long id);
+    List<Deadline> findAllByStudentId(Long studentId);
 }
