@@ -32,6 +32,9 @@ build/
 ### VS Code ###
 .vscode/
 
+### .env ###
+.env
+
 ### Logs & Files ####
 logs/
 uploads/*

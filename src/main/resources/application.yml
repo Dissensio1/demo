@@ -1,8 +1,8 @@
 spring:
     datasource:
-        url: jdbc:postgresql://localhost:5432/timetabbble
-        username: bebrik
-        password: bebrabebra
+        url: ${DB_URL}
+        username: ${DB_USERNAME}
+        password: ${DB_PASSWORD}
         driver-class-name: org.postgresql.Driver
     jpa:
         database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -17,7 +17,7 @@ spring:
         version: "0.1"
 ---
 jwt:
-    secret: 6a627a7fb025e2c5db643267523a1c801c1178bed30331a2606fe93f4dd9aa7b
+    secret: ${JWT_SECRET}
     access:
         duration:
             minutes: 5
@@ -42,3 +42,9 @@ spring:
             max-file-size: 10MB
             max-request-size: 10MB
             enabled: true
+---
+telegram:
+    bot:
+        name: ${BOT_NAME}
+        token: ${BOT_TOKEN}
+        chatId: ${BOT_CHATID}

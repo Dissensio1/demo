@@ -34,13 +34,14 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    public final UserService userService;
-    public final TokenRepository tokenRepository;
-    public final CookieUtil cookieUtil;
-    public final JwtTokenProvider jwtTokenProvider;
-    public final AuthenticationManager authenticationManager;
-    public final PasswordEncoder passwordEncoder;
-    public final Logger logger = LoggerFactory.getLogger(AuthService.class);
+    private final UserService userService;
+    private final BotService botService;
+    private final TokenRepository tokenRepository;
+    private final CookieUtil cookieUtil;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final AuthenticationManager authenticationManager;
+    private final PasswordEncoder passwordEncoder;
+    private final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     @Value("${jwt.access.duration.minutes}")
     private long accessDurationMin;
@@ -104,7 +105,16 @@ public class AuthService {
         }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
+
         logger.info("Login completed successfully for user: {}", user.getUsername());
+
+        try{
+            botService.sendToAdmin("User " + user.getUsername() + " successfully logged in");
+        }
+        catch(Exception e) {
+            logger.error("Failed to send login notification to admin");
+        }
+
         LoginResponse loginResponse = new LoginResponse(true, user.getUsername(), user.getRole().getName());
         return ResponseEntity.ok().headers(headers).body(loginResponse);
     }
