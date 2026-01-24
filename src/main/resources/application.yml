@@ -48,3 +48,6 @@ telegram:
         name: ${BOT_NAME}
         token: ${BOT_TOKEN}
         chatId: ${BOT_CHATID}
+---
+report:
+    template-location: classpath:templates/student-deadlines-report-template.xlsx

@@ -2,6 +2,8 @@ package com.example.demo.controller;
 
 import java.util.List;
 
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.dto.DeadlineRequestDTO;
 import com.example.demo.dto.DeadlineResponseDTO;
 import com.example.demo.service.DeadlineService;
+import com.example.demo.service.ReportService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequiredArgsConstructor
 public class DeadlineController {
     private final DeadlineService deadlineService;
+    private final ReportService reportService;
 
     @PostMapping
     public ResponseEntity<DeadlineResponseDTO> addDeadline(@RequestBody @Valid DeadlineRequestDTO deadlineReqDTO) {
@@ -48,6 +52,16 @@ public class DeadlineController {
     @GetMapping("/{id}")
     public ResponseEntity<DeadlineResponseDTO> getDeadline(@PathVariable Long id) {
         return ResponseEntity.ok().body(deadlineService.getById(id));
+    }
+
+    @GetMapping(value = "/getReport")
+    public ResponseEntity<Resource> downloadDeadlinesForStudent(
+    @RequestParam(required = true) Long studentId) {
+        Resource resource = reportService.getStudentDeadlinesReport(studentId);
+        return ResponseEntity.ok()
+        .contentType(org.springframework.http.MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=deadlines_report.xlsx")
+        .body(resource);
     }
 
     @PatchMapping("/{id}")
