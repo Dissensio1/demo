@@ -24,36 +24,61 @@ import com.example.demo.dto.StudentResponseDTO;
 import com.example.demo.service.DeadlineService;
 import com.example.demo.service.StudentService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/students")
 @RequiredArgsConstructor
+@Tag(name = "Students", description = "Methods for managing students")
 public class StudentController {
     private final StudentService studentService;
     private final DeadlineService deadlineService;
     
+    @Operation(
+        summary = "Create New Student",
+        description = "Creates a new student in the system")
     @PostMapping
-    public ResponseEntity<StudentResponseDTO> addStudent(@RequestBody @Valid StudentRequestDTO studentReqDTO) {
+    public ResponseEntity<StudentResponseDTO> addStudent(
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Student data to create", required = true)
+        @RequestBody @Valid StudentRequestDTO studentReqDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(studentService.create(studentReqDTO));
     }
 
+    @Operation(
+        summary = "Get All Students",
+        description = "Retrieves a list of all students in the system by group if it's not null, else retrieves a list of all students")
     @GetMapping("/group")
-    public List<StudentResponseDTO> getStudents(@RequestParam(required = false) String groupp) {
+    public List<StudentResponseDTO> getStudentsByGroup(
+        @Parameter(description = "Group of the student", required = true)
+        @RequestParam(required = false) String groupp) {
         if(groupp == null) return studentService.getAll();
         else return studentService.getAllByGroupp(groupp);
     }
 
+    @Operation(
+        summary = "Get Student by ID",
+        description = "Retrieves a specific student by its unique Id")
     @GetMapping("/{id}")
-    public ResponseEntity<StudentResponseDTO> getStudent(@PathVariable Long id) {
+    public ResponseEntity<StudentResponseDTO> getStudentById(
+        @Parameter(description = "ID of the student to retrieve", required = true)
+        @PathVariable Long id) {
         return ResponseEntity.ok().body(studentService.getById(id));
     }
 
+    @Operation(
+        summary = "Filter Student",
+        description = "Search and filter students")
     @GetMapping("/filter")
     public ResponseEntity<Object> getByFilter(
+        @Parameter(description = "Name of the student to filter by")
         @RequestParam(required = false)String name,
+        @Parameter(description = "Group of the student to filter by")
         @RequestParam(required = false)String groupp,
+        @Parameter(description = "The field by which the result is sorted, it can be name, groupp or id")
         @RequestParam(defaultValue = "name") String sort){
         if (!List.of("name", "groupp", "id").contains(sort)) {
             sort = "name";
@@ -64,37 +89,68 @@ public class StudentController {
     }
     
 
+    @Operation(
+        summary = "Update Student",
+        description = "Updates an existing student")
     @PatchMapping("/{id}")
-    public ResponseEntity<Object> edit(@PathVariable Long id, @RequestBody StudentRequestDTO studentReqDTO){
+    public ResponseEntity<Object> edit(
+        @Parameter(description = "ID of the student to update", required = true)
+        @PathVariable Long id,
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Updated student data", required = true)
+        @RequestBody StudentRequestDTO studentReqDTO){
         StudentResponseDTO updated = studentService.update(id, studentReqDTO);
         if(updated != null) return ResponseEntity.ok(updated);
         return ResponseEntity.notFound().build();
     }
 
+    @Operation(
+        summary = "Delete Student",
+        description = "Deletes a student from the system")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id){
+    public ResponseEntity<Void> delete(
+        @Parameter(description = "ID of the student to delete", required = true)
+        @PathVariable Long id){
         if(studentService.deleteById(id)){
             ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok().build();
     }
 
+    @Operation(
+        summary = "Apply deadline to student",
+        description = "Applies a certain deadline to certain student")
     @PatchMapping("/addDeadlineTo/{studentId}")
-    public ResponseEntity<Object> addDeadlineToStudent(@PathVariable Long studentId, @RequestParam Long deadlineId){
+    public ResponseEntity<Object> addDeadlineToStudent(
+        @Parameter(description = "ID of the student to apply deadline", required = true)
+        @PathVariable Long studentId,
+        @Parameter(description = "ID of the deadline to aplly", required = true)
+        @RequestParam Long deadlineId){
         DeadlineResponseDTO updated = deadlineService.addDeadlineToStudent(studentId, deadlineId);
         if(updated != null) return ResponseEntity.ok(updated);
         return ResponseEntity.notFound().build();
     }
 
+    @Operation(
+        summary = "Detach deadline to student",
+        description = "Detaches a certain deadline from certain student")
     @PatchMapping("/removeDeadlineFrom/{studentId}")
-    public ResponseEntity<Object> removeDeadlineFromStudent(@PathVariable Long studentId, @RequestParam Long deadlineId){
+    public ResponseEntity<Object> removeDeadlineFromStudent(
+        @Parameter(description = "ID of the student from which the deadline is detached", required = true)
+        @PathVariable Long studentId,
+        @Parameter(description = "ID of the deadline to detach", required = true)
+        @RequestParam Long deadlineId){
         DeadlineResponseDTO updated = deadlineService.removeDeadlineFromStudent(studentId, deadlineId);
         if(updated != null) return ResponseEntity.ok(updated);
         return ResponseEntity.notFound().build();
     }
 
+    @Operation(
+        summary = "Get Deadline Predicitons",
+        description = "Gets deadline predictions for certain student")
     @GetMapping("/{studentId}/predictions")
-    public List<DeadlinePredictionDTO> getPredictions(@PathVariable Long studentId) {
+    public List<DeadlinePredictionDTO> getPredictions(
+        @Parameter(description = "ID of the student for whom deadline are predicted", required = true)
+        @PathVariable Long studentId) {
         return deadlineService.getDeadlinePredictionsForStudent(studentId);
     }
 }

@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private static final String[] ALLOWED_URLS = { "/swagger-ui/**", "/v3/api-docs/**" };
+    private static final String[] ALLOWED_URLS = { "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui" };
     private final JwtAuthFilter jwtAuthFilter;
     private final JwtAuthEntryPoint jwtAuthEntryPoint;
 
