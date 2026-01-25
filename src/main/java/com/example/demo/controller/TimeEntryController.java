@@ -2,7 +2,9 @@ package com.example.demo.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,15 +24,13 @@ import com.example.demo.enums.TaskType;
 import com.example.demo.service.TimeEntryService;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RequestMapping("/api/timeEntries")
 @RestController
+@RequiredArgsConstructor
 public class TimeEntryController {
     private final TimeEntryService timeEntryService;
-
-    public TimeEntryController(TimeEntryService timeEntryService) {
-        this.timeEntryService = timeEntryService;
-    }
 
     @PostMapping
     public ResponseEntity<TimeEntryResponseDTO> addTimeEntry(@RequestBody @Valid TimeEntryRequestDTO request) {
@@ -60,11 +60,15 @@ public class TimeEntryController {
 
     @GetMapping("/filter")
     public ResponseEntity<Object> getByFilter(
-            @RequestParam(required = false) Long studentId,
-            @RequestParam(required = false) String type,
-            @RequestParam(required = false) boolean expression,
-            @PageableDefault(page = 0, size = 10, sort = "title") Pageable pageable) {
-        return ResponseEntity.ok(timeEntryService.getByFilter(type, studentId, expression, pageable));
+        @RequestParam(required = false)String type,
+        @RequestParam(defaultValue = "false",required = false)Boolean isBillable,
+        @RequestParam(defaultValue = "type") String sort){
+        if (!List.of("type", "isBillable", "id").contains(sort)) {
+            sort = "type";
+        }
+        Sort sortOrder = Sort.by(sort);
+        Pageable pageable = PageRequest.of(0, 10, sortOrder);
+        return ResponseEntity.ok(timeEntryService.getByFilter(type, isBillable, pageable));
     }
 
     @PatchMapping("/{id}")

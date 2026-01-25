@@ -7,17 +7,17 @@ import com.example.demo.model.Student;
 public class StudentSpecifications {
     private static Specification<Student> nameLike(String name){
         return (root, query, criteriaBuilder) ->{
-            if(name==null||name.trim().isEmpty()){return null;}
+            if(name == null || name.trim().isEmpty()) {return null;}
             return criteriaBuilder.like(criteriaBuilder.lower(
                 root.get("name")), "%" + name.trim().toLowerCase() + "%");
         };
     }
 
-    private static Specification<Student> grouppLike(String title){
+    private static Specification<Student> grouppLike(String groupp){
         return (root, query, criteriaBuilder) ->{
-            if(title==null||title.trim().isEmpty()){return null;}
+            if(groupp == null || groupp.trim().isEmpty()){return null;}
             return criteriaBuilder.like(criteriaBuilder.lower(
-                root.get("groupp")), "%" + title.trim().toLowerCase() + "%");
+                root.get("groupp")), "%" + groupp.trim().toLowerCase() + "%");
         };
     }
 

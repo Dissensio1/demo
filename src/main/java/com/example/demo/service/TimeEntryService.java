@@ -11,18 +11,22 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.demo.dto.StudentResponseDTO;
 import com.example.demo.dto.TimeEntryRequestDTO;
 import com.example.demo.dto.TimeEntryResponseDTO;
 import com.example.demo.enums.TaskType;
+import com.example.demo.mapper.StudentMapper;
 import com.example.demo.mapper.TimeEntryMapper;
 import com.example.demo.model.Student;
 import com.example.demo.model.TimeEntry;
 import com.example.demo.repository.StudentRepository;
 import com.example.demo.repository.TimeEntryRepository;
+import com.example.demo.specifications.StudentSpecifications;
 import com.example.demo.specifications.TimeEntrySpecification;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -128,8 +132,22 @@ public class TimeEntryService {
         throw new EntityNotFoundException("There's no TimeEntry with ID: " + id.toString());
     }
 
-    public Page<TimeEntry> getByFilter(String type, Long studentId, boolean expression, Pageable pageable) {
-        Page<TimeEntry> result = timeEntryRepository.findAll(TimeEntrySpecification.filter(type, studentId, expression), pageable);
+    public Page<TimeEntryResponseDTO> getByFilter(String type, boolean isBillable, Pageable pageable) {
+        Page<TimeEntry> timeEntryPage = timeEntryRepository.findAll(
+            TimeEntrySpecification.filter(type, isBillable), 
+            pageable
+        );
+
+        List<TimeEntryResponseDTO> dtoList = timeEntryPage.getContent().stream()
+            .map(TimeEntryMapper::timeEntryToTimeEntryResponseDTO)
+            .toList();
+
+        Page<TimeEntryResponseDTO> result = new PageImpl<>(
+            dtoList,
+            pageable,
+            timeEntryPage.getTotalElements()
+        );
+
         logger.info("Successfully filtered TimeEntries. Found {} results", result.getNumberOfElements());
         return result;
     }

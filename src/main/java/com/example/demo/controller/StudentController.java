@@ -2,8 +2,9 @@ package com.example.demo.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,7 +39,7 @@ public class StudentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(studentService.create(studentReqDTO));
     }
 
-    @GetMapping
+    @GetMapping("/group")
     public List<StudentResponseDTO> getStudents(@RequestParam(required = false) String groupp) {
         if(groupp == null) return studentService.getAll();
         else return studentService.getAllByGroupp(groupp);
@@ -52,10 +53,15 @@ public class StudentController {
     @GetMapping("/filter")
     public ResponseEntity<Object> getByFilter(
         @RequestParam(required = false)String name,
-        @RequestParam(required = false)String title,
-        @PageableDefault(page = 0, size = 10, sort = "title")Pageable pageable){
-            return ResponseEntity.ok(studentService.getByFilter(name, title, pageable));
+        @RequestParam(required = false)String groupp,
+        @RequestParam(defaultValue = "name") String sort){
+        if (!List.of("name", "groupp", "id").contains(sort)) {
+            sort = "name";
         }
+        Sort sortOrder = Sort.by(sort);
+        Pageable pageable = PageRequest.of(0, 10, sortOrder);
+        return ResponseEntity.ok(studentService.getByFilter(name, groupp, pageable));
+    }
     
 
     @PatchMapping("/{id}")
